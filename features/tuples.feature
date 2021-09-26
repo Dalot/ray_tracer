@@ -61,10 +61,43 @@ Feature: Tuples feature
 
     Scenario: Multiplying a tuple by a fraction
         Given a ← tuple(1, -2, 3, -0)
-        Then
+        Then a * 0.5 = tuple(0.5, -1, 1.5, 0)
 
     Scenario: Dividing a tuple by a scalar
         Given a ← tuple(1, -2, 3, -4)
         Then a / 2 = tuple(0.5, -1, 1.5, -2)
+
+    Scenario: Computing the magnitude of vector(1, 0, 0)
+        Given v ← vector(1, 0, 0)
+        Then magnitude(v) = 1
+
+    Scenario: Computing the magnitude of vector(0, 1, 0)
+        Given v ← vector(0, 1, 0)
+        Then magnitude(v) = 1
+
+    Scenario: Computing the magnitude of vector(0, 0, 1)
+        Given v ← vector(0, 0, 1)
+        Then magnitude(v) = 1
+
+    Scenario: Computing the magnitude of vector(1, 2, 3)
+        Given [1] v ← vector(1, 2, 3)
+        Then magnitude(v) = √14
+
+    Scenario: Computing the magnitude of vector(-1, -2, -3)
+        Given [2] v ← vector(-1, -2, -3)
+        Then magnitude(v) = √14
+
+    Scenario: Normalizing vector(4, 0, 0) gives (1, 0, 0)
+        Given v ← vector(4, 0, 0)
+        Then normalize(v) = vector(1, 0, 0)
+
+    Scenario: Normalizing vector(1, 2, 3)
+        Given [normalization] v ← vector(1, 2, 3)
+        Then normalize(v) = approximately vector(0.26726, 0.53452, 0.80178)
+
+    Scenario: The magnitude of a normalized vector
+        Given [3] v ← vector(1, 2, 3)
+        When norm ← normalize(v)
+        Then magnitude(norm) = 1
 
 
