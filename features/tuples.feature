@@ -51,6 +51,20 @@ Feature: Tuples feature
         Given a1 ← tuple(3, -2, 5, 0) AND a2 ← tuple(-2, 3, 1, 1)
         Then a1 - a2 = InvalidOperation
 
-    Scenario: Subtracting a vector from the zero vector
+    Scenario: Negate a vector
         Given v ← vector(1, -2, 3)
         Then zero - v = vector(-1, 2, -3)
+
+    Scenario: Multiplying a tuple by a scalar
+        Given a ← tuple(1, -2, 3, 0)
+        Then a * 3.5 = tuple(3.5, -7, 10.5, 0)
+
+    Scenario: Multiplying a tuple by a fraction
+        Given a ← tuple(1, -2, 3, -0)
+        Then
+
+    Scenario: Dividing a tuple by a scalar
+        Given a ← tuple(1, -2, 3, -4)
+        Then a / 2 = tuple(0.5, -1, 1.5, -2)
+
+

@@ -1,5 +1,8 @@
 use core::fmt;
-use std::{fmt::{Display, Formatter}, ops};
+use std::{
+    fmt::{Display, Formatter},
+    ops,
+};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct PV(f32, f32, f32, f32);
@@ -63,7 +66,7 @@ impl ops::Add<PV> for PV {
             return Err(InvalidOperation::InvalidAddition);
         }
 
-        Ok(res) 
+        Ok(res)
     }
 }
 
@@ -82,7 +85,40 @@ impl ops::Sub<PV> for PV {
             return Err(InvalidOperation::InvalidSubtraction);
         }
 
-        Ok(res) 
+        Ok(res)
+    }
+}
+
+impl ops::Mul<f32> for PV {
+    type Output = Result<Self>;
+
+    fn mul(self, _rhs: f32) -> Result<Self> {
+        let res = Self(self.0 * _rhs, self.1 * _rhs, self.2 * _rhs, self.3 * _rhs);
+
+        if self.is_valid() {
+            return Err(InvalidOperation::InvalidMultiplication);
+        }
+
+        Ok(res)
+    }
+}
+
+impl ops::Div<f32> for PV {
+    type Output = Result<Self>;
+
+    fn div(self, _rhs: f32) -> Result<Self> {
+        let margin = f32::EPSILON;
+        if (self.3 - 1.0).abs() < margin {
+            return Err(InvalidOperation::InvalidDivision);
+        }
+
+        let res = Self(self.0 / _rhs, self.1 / _rhs, self.2 / _rhs, self.3 / _rhs);
+
+        if self.is_valid() {
+            return Err(InvalidOperation::InvalidDivision);
+        }
+
+        Ok(res)
     }
 }
 
@@ -100,7 +136,9 @@ impl ops::Neg for PV {
 #[derive(Debug, Clone, PartialEq)]
 pub enum InvalidOperation {
     InvalidAddition,
-    InvalidSubtraction
+    InvalidSubtraction,
+    InvalidMultiplication,
+    InvalidDivision,
 }
 
 #[derive(Debug, Clone)]
@@ -124,5 +162,23 @@ impl Display for InvalidSubtraction {
             f,
             "Invalid subtraction. Are you trying to subtract a point from a vector?"
         )
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct InvalidMultiplication;
+
+impl Display for InvalidMultiplication {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "Invalid multiplication.")
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct InvalidDivision;
+
+impl Display for InvalidDivision {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "Invalid division.")
     }
 }

@@ -209,6 +209,42 @@ mod addition_steps {
             });
 
         builder
+            .given("a ← tuple(1, -2, 3, 0)", |mut w, _| {
+                w.vector = PV::vector(1.0, -2.0, 3.0);
+                w
+            })
+            .then("a * 3.5 = tuple(3.5, -7, 10.5, 0)", |w, _| {
+                let res = (w.vector * 3.5).unwrap();
+                assert_eq!(res, PV::vector(3.5, -7.0, 10.5));
+
+                w
+            });
+
+        builder
+            .given("a ← tuple(1, -2, 3, -0)", |mut w, _| {
+                w.vector = PV::vector(1.0, -2.0, 3.0);
+                w
+            })
+            .then("a * 0.5 = tuple(0.5, -1, 1.5, 0)", |w, _| {
+                let res = (w.vector * 0.5).unwrap();
+                assert_eq!(res, PV::vector(0.5, -1.0, 1.5));
+
+                w
+            });
+
+        builder
+            .given("a ← tuple(1, -2, 3, -4)", |mut w, _| {
+                w.vector = PV::vector(1.0, -2.0, 3.0);
+                w
+            })
+            .then("a / 2 = tuple(0.5, -1, 1.5, -2)", |w, _| {
+                let res = (w.vector / 2.0).expect("Could not divide vector");
+                assert_eq!(res, PV::vector(0.5, -1.0, 1.5));
+
+                w
+            });
+
+        builder
     }
 
     fn f32_equal(a: f32, b: f32) -> bool {
