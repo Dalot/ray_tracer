@@ -105,9 +105,9 @@ mod addition_steps {
                     w
                 },
             )
-            .then("a1 + a2 = tuple(1, 1, 6, 1)", |mut w, _| {
-                let res = w.point.add(w.vector).unwrap();
-                assert_eq!(*res, PV::point(1.0, 1.0, 6.0));
+            .then("a1 + a2 = tuple(1, 1, 6, 1)", |w, _| {
+                let res = (w.point + w.vector).unwrap();
+                assert_eq!(res, PV::point(1.0, 1.0, 6.0));
                 w
             });
 
@@ -119,10 +119,10 @@ mod addition_steps {
                     w
                 },
             )
-            .then("a1 + a2 = tuple(1, 1, 6, 0)", |mut w, _| {
+            .then("a1 + a2 = tuple(1, 1, 6, 0)", |w, _| {
                 let other = PV::point(-2.0, 3.0, 1.0);
-                let res = w.vector.add(other).unwrap();
-                assert_eq!(*res, PV::point(1.0, 1.0, 6.0));
+                let res = (w.vector + other).unwrap();
+                assert_eq!(res, PV::point(1.0, 1.0, 6.0));
                 w
             });
 
@@ -134,9 +134,9 @@ mod addition_steps {
                     w
                 },
             )
-            .then("a1 + a2 = InvalidOperation", |mut w, _| {
+            .then("a1 + a2 = InvalidOperation", |w, _| {
                 let other = PV::point(-2.0, 3.0, 1.0);
-                match w.vector.sub(other) {
+                match w.vector - other {
                     Err(err) => assert_eq!(err, InvalidOperation::InvalidAddition),
                     Ok(val) => {
                         dbg!("test failed {:?}", val);
@@ -155,9 +155,9 @@ mod addition_steps {
                     w
                 },
             )
-            .then("a1 - a2 = tuple(5, -5, 4, 1)", |mut w, _| {
-                let res = w.point.sub(w.vector).unwrap();
-                assert_eq!(*res, PV::point(5.0, -5.0, 4.0));
+            .then("a1 - a2 = tuple(5, -5, 4, 1)", |w, _| {
+                let res = (w.point - w.vector).unwrap();
+                assert_eq!(res, PV::point(5.0, -5.0, 4.0));
                 w
             });
 
@@ -169,10 +169,10 @@ mod addition_steps {
                     w
                 },
             )
-            .then("a1 - a2 = tuple(5, -5, 4, 0)", |mut w, _| {
+            .then("a1 - a2 = tuple(5, -5, 4, 0)", |w, _| {
                 let other = PV::point(-2.0, 3.0, 1.0);
-                let res = w.point.sub(other).unwrap();
-                assert_eq!(*res, PV::vector(5.0, -5.0, 4.0));
+                let res = (w.point - other).unwrap();
+                assert_eq!(res, PV::vector(5.0, -5.0, 4.0));
                 w
             });
 
@@ -184,9 +184,9 @@ mod addition_steps {
                     w
                 },
             )
-            .then("a1 - a2 = InvalidOperation", |mut w, _| {
+            .then("a1 - a2 = InvalidOperation", |w, _| {
                 let other = PV::point(-2.0, 3.0, 1.0);
-                match w.vector.sub(other) {
+                match w.vector - other {
                     Err(err) => assert_eq!(err, InvalidOperation::InvalidSubtraction),
                     Ok(val) => {
                         dbg!("test failed {:?}", val);
@@ -195,6 +195,19 @@ mod addition_steps {
 
                 w
             });
+
+        builder
+            .given("v ← vector(1, -2, 3)", |mut w, _| {
+                w.vector = PV::vector(1.0, -2.0, 3.0);
+                w
+            })
+            .then("zero - v = vector(-1, 2, -3)", |w, _| {
+                let res = -w.vector;
+                assert_eq!(res, PV::vector(-1.0, 2.0, -3.0));
+
+                w
+            });
+
         builder
     }
 

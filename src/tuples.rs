@@ -1,5 +1,5 @@
 use core::fmt;
-use std::fmt::{Display, Formatter};
+use std::{fmt::{Display, Formatter}, ops};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct PV(f32, f32, f32, f32);
@@ -24,6 +24,10 @@ impl PV {
         (self.3 - 1.0).abs() < margin
     }
 
+    pub fn is_vector(&self) -> bool {
+        !self.is_point()
+    }
+
     pub fn x(&self) -> f32 {
         self.0
     }
@@ -38,37 +42,65 @@ impl PV {
         self.3 < 1.0 && self.3 > 0.0
     }
 
-    pub fn add(&mut self, other: Self) -> Result<&mut Self> {
-        self.0 += other.0;
-        self.1 += other.1;
-        self.2 += other.2;
-        self.3 += other.3;
+    pub fn is_zero(&self) -> bool {
+        let margin = f32::EPSILON;
+        self.0 < margin && self.1 < margin && self.2 < margin
+    }
+}
+
+impl ops::Add<PV> for PV {
+    type Output = Result<Self>;
+
+    fn add(self, _rhs: PV) -> Result<Self> {
+        let res = Self(
+            self.0 + _rhs.0,
+            self.1 + _rhs.1,
+            self.2 + _rhs.2,
+            self.3 + _rhs.3,
+        );
 
         if self.is_valid() {
             return Err(InvalidOperation::InvalidAddition);
         }
 
-        Ok(self)
+        Ok(res) 
     }
+}
 
-    pub fn sub(&mut self, other: Self) -> Result<&mut Self> {
-        self.0 -= other.0;
-        self.1 -= other.1;
-        self.2 -= other.2;
-        self.3 -= other.3;
+impl ops::Sub<PV> for PV {
+    type Output = Result<Self>;
+
+    fn sub(self, _rhs: PV) -> Result<Self> {
+        let res = Self(
+            self.0 - _rhs.0,
+            self.1 - _rhs.1,
+            self.2 - _rhs.2,
+            self.3 - _rhs.3,
+        );
 
         if self.is_valid() {
             return Err(InvalidOperation::InvalidSubtraction);
         }
 
-        Ok(self)
+        Ok(res) 
+    }
+}
+
+impl ops::Neg for PV {
+    type Output = PV;
+
+    fn neg(mut self) -> PV {
+        self.0 = -self.0;
+        self.1 = -self.1;
+        self.2 = -self.2;
+        self
     }
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum InvalidOperation {
     InvalidAddition,
-    InvalidSubtraction,
+    InvalidSubtraction
 }
 
 #[derive(Debug, Clone)]

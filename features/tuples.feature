@@ -50,3 +50,7 @@ Feature: Tuples feature
     Scenario: Subtracting a point to a vector gives an error
         Given a1 ← tuple(3, -2, 5, 0) AND a2 ← tuple(-2, 3, 1, 1)
         Then a1 - a2 = InvalidOperation
+
+    Scenario: Subtracting a vector from the zero vector
+        Given v ← vector(1, -2, 3)
+        Then zero - v = vector(-1, 2, -3)
