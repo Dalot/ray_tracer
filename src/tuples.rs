@@ -63,6 +63,11 @@ impl PV {
         let mag = self.mag();
         Self(self.x() / mag, self.y() / mag, self.z() / mag, 0.0)
     }
+
+    /// Dot calculates the dot product between two vectors
+    pub fn dot(&self, other: &Self) -> f64{
+        self.x() * other.x() + self.y() * other.y() + self.z() * other.z()
+    }
 }
 
 impl ops::Add<PV> for PV {

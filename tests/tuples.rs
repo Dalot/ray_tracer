@@ -326,14 +326,13 @@ mod addition_steps {
                 },
             );
 
+        // TODO: CHECKPOINT - DOT PRODUCT PAGE 31/286
+
         builder
-            .given(
-                "[3] v ← vector(1, 2, 3)",
-                |mut w, _| {
-                    w.vector = PV::vector(1.0, 2.0, 3.0);
-                    w
-                },
-            )
+            .given("[3] v ← vector(1, 2, 3)", |mut w, _| {
+                w.vector = PV::vector(1.0, 2.0, 3.0);
+                w
+            })
             .when("norm ← normalize(v)", |mut w, _| {
                 w.norm = w.vector.norm();
                 w
@@ -343,6 +342,16 @@ mod addition_steps {
                 w
             });
 
+        builder
+            .given("[4] a ← vector(1, 2, 3) AND b ← vector(2, 3, 4)", |mut w, _| {
+                w.vector = PV::vector(1.0, 2.0, 3.0);
+                w
+            })
+            .then("dot(a, b) = 20", |w, _| {
+                let other = PV::vector(2.0, 3.0, 4.0);
+                assert!(f64_equal(20.0, w.vector.dot(&other)));
+                w
+            });
         builder
     }
 }

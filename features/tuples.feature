@@ -100,4 +100,8 @@ Feature: Tuples feature
         When norm ← normalize(v)
         Then magnitude(norm) = 1
 
+    Scenario: The dot product of two tuples
+        Given [4] a ← vector(1, 2, 3) AND b ← vector(2, 3, 4)
+        Then dot(a, b) = 20
+
 
