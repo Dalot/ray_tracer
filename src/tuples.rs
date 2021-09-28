@@ -1,54 +1,53 @@
-use core::fmt;
-use std::{
-    fmt::{Display, Formatter},
-    ops,
-};
-
-use crate::helpers::f64_equal;
+use std::ops;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct PV(f64, f64, f64, f64);
+pub struct Point {
+    x: f64,
+    y: f64,
+    z: f64,
+}
 
-type Result<T> = std::result::Result<T, InvalidOperation>;
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Vector {
+    x: f64,
+    y: f64,
+    z: f64,
+}
 
-impl PV {
-    pub fn new(x: f64, y: f64, z: f64, is_point: f64) -> Self {
-        Self(x, y, z, is_point)
-    }
-
-    pub fn point(x: f64, y: f64, z: f64) -> Self {
-        Self(x, y, z, 1.0)
-    }
-
-    pub fn vector(x: f64, y: f64, z: f64) -> Self {
-        Self(x, y, z, 0.0)
-    }
-
-    pub fn is_point(&self) -> bool {
-        f64_equal(self.3, 1.0)
-    }
-
-    pub fn is_vector(&self) -> bool {
-        !self.is_point()
+impl Point {
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
+        Self { x, y, z }
     }
 
     pub fn x(&self) -> f64 {
-        self.0
+        self.x
     }
     pub fn y(&self) -> f64 {
-        self.1
+        self.y
     }
     pub fn z(&self) -> f64 {
-        self.2
+        self.z
+    }
+}
+
+impl Vector {
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
+        Self { x, y, z }
     }
 
-    pub fn is_valid(&self) -> bool {
-        self.3 < 1.0 && self.3 > 0.0
+    pub fn x(&self) -> f64 {
+        self.x
+    }
+    pub fn y(&self) -> f64 {
+        self.y
+    }
+    pub fn z(&self) -> f64 {
+        self.z
     }
 
     pub fn is_zero(&self) -> bool {
         let margin = f64::EPSILON;
-        self.0 < margin && self.1 < margin && self.2 < margin
+        self.x() < margin && self.y() < margin && self.z() < margin
     }
 
     /// Mag calculated the magnitude of a vector
@@ -61,186 +60,166 @@ impl PV {
     /// Norm normalizes a vector
     pub fn norm(&self) -> Self {
         let mag = self.mag();
-        Self(self.x() / mag, self.y() / mag, self.z() / mag, 0.0)
+        Self {
+            x: self.x() / mag,
+            y: self.y() / mag,
+            z: self.z() / mag,
+        }
     }
 
     /// Dot calculates the dot product between two vectors
-    pub fn dot(&self, other: &Self) -> Result<f64> {
-        if self.is_point() {
-            return Err(InvalidOperation::InvalidDotProduct);
-        }
-
-        Ok(self.x() * other.x() + self.y() * other.y() + self.z() * other.z())
+    pub fn dot(&self, other: &Self) -> f64 {
+        self.x() * other.x() + self.y() * other.y() + self.z() * other.z()
     }
 
     /// Cross calculates the cross product between two vectors
-    pub fn cross(&self, other: &Self) -> Result<PV> {
-        if self.is_point() {
-            return Err(InvalidOperation::InvalidCrossProduct);
+    pub fn cross(&self, other: &Self) -> Self {
+        Self {
+            x: self.y() * other.z() - self.z() * other.y(),
+            y: self.z() * other.x() - self.x() * other.z(),
+            z: self.x() * other.y() - self.y() * other.x(),
         }
-
-        Ok(
-            Self(
-                self.y() * other.z() - self.z() * other.y(),
-                self.z() * other.x() - self.x() * other.z(),
-                self.x() * other.y() - self.y() * other.x(), 
-                0.0
-            )
-        )
     }
 }
 
-impl ops::Add<PV> for PV {
-    type Output = Result<Self>;
+impl ops::Add<Point> for Vector {
+    type Output = Self;
 
-    fn add(self, _rhs: PV) -> Result<Self> {
-        let res = Self(
-            self.0 + _rhs.0,
-            self.1 + _rhs.1,
-            self.2 + _rhs.2,
-            self.3 + _rhs.3,
-        );
-
-        if self.is_valid() {
-            return Err(InvalidOperation::InvalidAddition);
+    fn add(self, _rhs: Point) -> Self {
+        Self {
+            x: self.x() + _rhs.x(),
+            y: self.y() + _rhs.y(),
+            z: self.z() + _rhs.z(),
         }
-
-        Ok(res)
     }
 }
 
-impl ops::Sub<PV> for PV {
-    type Output = Result<Self>;
+impl ops::Add<Vector> for Point {
+    type Output = Self;
 
-    fn sub(self, _rhs: PV) -> Result<Self> {
-        let res = Self(
-            self.0 - _rhs.0,
-            self.1 - _rhs.1,
-            self.2 - _rhs.2,
-            self.3 - _rhs.3,
-        );
-
-        if self.is_valid() {
-            return Err(InvalidOperation::InvalidSubtraction);
+    fn add(self, _rhs: Vector) -> Self {
+        Self {
+            x: self.x() + _rhs.x(),
+            y: self.y() + _rhs.y(),
+            z: self.z() + _rhs.z(),
         }
-
-        Ok(res)
     }
 }
 
-impl ops::Mul<f64> for PV {
-    type Output = Result<Self>;
+impl ops::Add<Vector> for Vector {
+    type Output = Self;
 
-    fn mul(self, _rhs: f64) -> Result<Self> {
-        let res = Self(self.0 * _rhs, self.1 * _rhs, self.2 * _rhs, self.3 * _rhs);
-
-        if self.is_valid() {
-            return Err(InvalidOperation::InvalidMultiplication);
+    fn add(self, _rhs: Vector) -> Self {
+        Self {
+            x: self.x() + _rhs.x(),
+            y: self.y() + _rhs.y(),
+            z: self.z() + _rhs.z(),
         }
-
-        Ok(res)
     }
 }
 
-impl ops::Div<f64> for PV {
-    type Output = Result<Self>;
+impl ops::Sub<Point> for Point {
+    type Output = Vector;
 
-    fn div(self, _rhs: f64) -> Result<Self> {
-        let margin = f64::EPSILON;
-        if (self.3 - 1.0).abs() < margin {
-            return Err(InvalidOperation::InvalidDivision);
+    fn sub(self, _rhs: Point) -> Vector {
+        Vector {
+            x: self.x() - _rhs.x(),
+            y: self.y() - _rhs.y(),
+            z: self.z() - _rhs.z(),
         }
-
-        let res = Self(self.0 / _rhs, self.1 / _rhs, self.2 / _rhs, self.3 / _rhs);
-
-        if self.is_valid() {
-            return Err(InvalidOperation::InvalidDivision);
-        }
-
-        Ok(res)
     }
 }
 
-impl ops::Neg for PV {
-    type Output = PV;
+impl ops::Sub<Vector> for Point {
+    type Output = Self;
 
-    fn neg(mut self) -> PV {
-        self.0 = -self.0;
-        self.1 = -self.1;
-        self.2 = -self.2;
+    fn sub(self, _rhs: Vector) -> Self {
+        Self {
+            x: self.x() - _rhs.x(),
+            y: self.y() - _rhs.y(),
+            z: self.z() - _rhs.z(),
+        }
+    }
+}
+
+impl ops::Sub<Vector> for Vector {
+    type Output = Self;
+
+    fn sub(self, _rhs: Vector) -> Self {
+        Self {
+            x: self.x() - _rhs.x(),
+            y: self.y() - _rhs.y(),
+            z: self.z() - _rhs.z(),
+        }
+    }
+}
+
+impl ops::Mul<f64> for Point {
+    type Output = Self;
+
+    fn mul(self, _rhs: f64) -> Self {
+        Self {
+            x: self.x() * _rhs,
+            y: self.y() * _rhs,
+            z: self.z() * _rhs,
+        }
+    }
+}
+
+impl ops::Mul<f64> for Vector {
+    type Output = Self;
+
+    fn mul(self, _rhs: f64) -> Self {
+        Self {
+            x: self.x() * _rhs,
+            y: self.y() * _rhs,
+            z: self.z() * _rhs,
+        }
+    }
+}
+
+impl ops::Div<f64> for Point {
+    type Output = Self;
+
+    fn div(self, _rhs: f64) -> Self {
+        Self {
+            x: self.x() / _rhs,
+            y: self.y() / _rhs,
+            z: self.z() / _rhs,
+        }
+    }
+}
+
+impl ops::Div<f64> for Vector {
+    type Output = Self;
+
+    fn div(self, _rhs: f64) -> Self {
+        Self {
+            x: self.x() / _rhs,
+            y: self.y() / _rhs,
+            z: self.z() / _rhs,
+        }
+    }
+}
+
+impl ops::Neg for Point {
+    type Output = Point;
+
+    fn neg(mut self) -> Self {
+        self.x = -self.x();
+        self.y = -self.y();
+        self.z = -self.z();
         self
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum InvalidOperation {
-    InvalidAddition,
-    InvalidSubtraction,
-    InvalidMultiplication,
-    InvalidDivision,
-    InvalidDotProduct,
-    InvalidCrossProduct
-}
+impl ops::Neg for Vector {
+    type Output = Vector;
 
-#[derive(Debug, Clone)]
-pub struct InvalidAddition;
-
-impl Display for InvalidAddition {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(
-            f,
-            "Invalid addtion. Are you trying to add a point to a point?"
-        )
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct InvalidSubtraction;
-
-impl Display for InvalidSubtraction {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(
-            f,
-            "Invalid subtraction. Are you trying to subtract a point from a vector?"
-        )
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct InvalidMultiplication;
-
-impl Display for InvalidMultiplication {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "Invalid multiplication.")
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct InvalidDivision;
-
-impl Display for InvalidDivision {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "Invalid division.")
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct InvalidDotProduct;
-
-impl Display for InvalidDotProduct {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "Invalid dot product. Are you trying to make a dot product with a point?")
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct InvalidCrossProduct;
-
-impl Display for InvalidCrossProduct {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(
-            f,
-            "Invalid cross product. Are you trying to calculate the cross product with a point?"
-        )
+    fn neg(mut self) -> Self {
+        self.x = -self.x();
+        self.y = -self.y();
+        self.z = -self.z();
+        self
     }
 }
