@@ -326,8 +326,6 @@ mod addition_steps {
                 },
             );
 
-        // TODO: CHECKPOINT - DOT PRODUCT PAGE 31/286
-
         builder
             .given("[3] v ← vector(1, 2, 3)", |mut w, _| {
                 w.vector = PV::vector(1.0, 2.0, 3.0);
@@ -343,15 +341,37 @@ mod addition_steps {
             });
 
         builder
-            .given("[4] a ← vector(1, 2, 3) AND b ← vector(2, 3, 4)", |mut w, _| {
-                w.vector = PV::vector(1.0, 2.0, 3.0);
-                w
-            })
+            .given(
+                "a ← vector(1, 2, 3) AND b ← vector(2, 3, 4)",
+                |mut w, _| {
+                    w.vector = PV::vector(1.0, 2.0, 3.0);
+                    w
+                },
+            )
             .then("dot(a, b) = 20", |w, _| {
                 let other = PV::vector(2.0, 3.0, 4.0);
-                assert!(f64_equal(20.0, w.vector.dot(&other)));
+                assert!(f64_equal(20.0, w.vector.dot(&other).unwrap()));
                 w
             });
+           
+        builder
+            .given(
+                "[2] a ← vector(1, 2, 3) And b ← vector(2, 3, 4)",
+                |mut w, _| {
+                    w.vector = PV::vector(1.0, 2.0, 3.0);
+                    w
+                },
+            )
+            .then("cross(a, b) = vector(-1, 2, -1)", |w, _| {
+                let other = PV::vector(2.0, 3.0, 4.0);
+                assert_eq!(PV::vector(-1.0, 2.0, -1.0), w.vector.cross(&other).unwrap());
+                w
+            }).then("cross(b, a) = vector(1, -2, 1)", |w, _| {
+                let other = PV::vector(2.0, 3.0, 4.0);
+                assert_eq!(PV::vector(1.0, -2.0, 1.0), other.cross(&w.vector).unwrap());
+                w
+            });
+
         builder
     }
 }

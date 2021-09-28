@@ -65,8 +65,28 @@ impl PV {
     }
 
     /// Dot calculates the dot product between two vectors
-    pub fn dot(&self, other: &Self) -> f64{
-        self.x() * other.x() + self.y() * other.y() + self.z() * other.z()
+    pub fn dot(&self, other: &Self) -> Result<f64> {
+        if self.is_point() {
+            return Err(InvalidOperation::InvalidDotProduct);
+        }
+
+        Ok(self.x() * other.x() + self.y() * other.y() + self.z() * other.z())
+    }
+
+    /// Cross calculates the cross product between two vectors
+    pub fn cross(&self, other: &Self) -> Result<PV> {
+        if self.is_point() {
+            return Err(InvalidOperation::InvalidCrossProduct);
+        }
+
+        Ok(
+            Self(
+                self.y() * other.z() - self.z() * other.y(),
+                self.z() * other.x() - self.x() * other.z(),
+                self.x() * other.y() - self.y() * other.x(), 
+                0.0
+            )
+        )
     }
 }
 
@@ -158,6 +178,8 @@ pub enum InvalidOperation {
     InvalidSubtraction,
     InvalidMultiplication,
     InvalidDivision,
+    InvalidDotProduct,
+    InvalidCrossProduct
 }
 
 #[derive(Debug, Clone)]
@@ -199,5 +221,26 @@ pub struct InvalidDivision;
 impl Display for InvalidDivision {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "Invalid division.")
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct InvalidDotProduct;
+
+impl Display for InvalidDotProduct {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "Invalid dot product. Are you trying to make a dot product with a point?")
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct InvalidCrossProduct;
+
+impl Display for InvalidCrossProduct {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(
+            f,
+            "Invalid cross product. Are you trying to calculate the cross product with a point?"
+        )
     }
 }
