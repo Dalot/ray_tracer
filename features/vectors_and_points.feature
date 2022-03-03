@@ -1,4 +1,4 @@
-Feature: Tuples feature
+Feature: Vector and Points math feature
 
     Scenario: A tuple with w=1.0 is a point
         Given a ← point(4.3, -4.2, 3.1)
